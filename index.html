@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#1261d6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LUPA">
+  <meta name="description" content="LUPA — una curiosidad al azar.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+  <title>LUPA</title>
+  <style>
+    :root{
+      --blue:#1261d6; --blue2:#0a47a6; --white:#fff;
+      --shadow:0 18px 45px rgba(0,0,0,.22);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:linear-gradient(145deg,var(--blue),var(--blue2));
+      color:var(--white);
+      display:flex;align-items:center;justify-content:center;
+      min-height:100svh;
+    }
+    button{font:inherit}
+    .app{
+      width:100%;height:100%;max-width:720px;
+      padding:env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      position:relative;text-align:center;
+    }
+    .brand{
+      position:absolute;top:clamp(28px,7vh,58px);
+      left:0;right:0;font-size:clamp(28px,7vw,42px);
+      font-weight:800;letter-spacing:8px;
+    }
+    .hint{
+      position:absolute;top:clamp(82px,14vh,115px);
+      left:24px;right:24px;font-size:15px;opacity:.86;
+    }
+    .main{width:100%;display:flex;flex-direction:column;align-items:center;gap:28px}
+    .lens{
+      width:min(58vw,310px);height:min(58vw,310px);
+      min-width:190px;min-height:190px;
+      border:0;border-radius:50%;
+      background:rgba(255,255,255,.98);
+      box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;position:relative;
+      transition:transform .16s ease, box-shadow .16s ease;
+    }
+    .lens:active{transform:scale(.93);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+    .lens::after{
+      content:"";position:absolute;width:34%;height:34%;
+      border-radius:50%;border:clamp(12px,3vw,20px) solid var(--blue);
+      transform:rotate(-45deg);
+      box-shadow:14px 14px 0 -3px transparent;
+    }
+    .lens::before{
+      content:"";position:absolute;width:27%;height:12%;
+      background:var(--blue);border-radius:999px;
+      transform:rotate(45deg) translate(67%,155%);
+      transform-origin:center;
+    }
+    .lens .spark{
+      position:absolute;top:25%;right:25%;font-size:clamp(18px,5vw,28px);
+      color:var(--blue);z-index:2;
+    }
+    .cta{font-size:18px;font-weight:600;letter-spacing:.2px}
+    .count{font-size:12px;opacity:.62;margin-top:-14px}
+    .card{
+      width:min(92vw,620px);padding:30px 26px 28px;
+      border-radius:28px;background:rgba(255,255,255,.98);
+      color:#15345f;box-shadow:var(--shadow);
+      display:none;animation:rise .25s ease;
+    }
+    .card.show{display:block}
+    .tag{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+    .fact{font-size:clamp(22px,5.5vw,34px);line-height:1.18;font-weight:750;margin:0}
+    .small{font-size:13px;color:#58708f;margin-top:16px}
+    .again{
+      margin-top:20px;border:0;border-radius:999px;
+      background:var(--blue);color:white;padding:13px 22px;font-weight:750;
+      cursor:pointer;
+    }
+    .footer{
+      position:absolute;bottom:clamp(22px,5vh,42px);font-size:11px;opacity:.5;
+    }
+    @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @media (orientation:landscape) and (max-height:600px){
+      .brand{top:15px}.hint{top:55px}.main{gap:12px}.lens{width:180px;height:180px}
+      .footer{display:none}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="brand">LUPA</div>
+    <div class="hint">Toca la lupa y descubre algo nuevo.</div>
+
+    <section class="main">
+      <button class="lens" id="lens" aria-label="Descubrir una curiosidad">
+        <span class="spark">✦</span>
+      </button>
+      <div class="cta" id="cta">TOCA PARA DESCUBRIR</div>
+      <div class="count" id="count">0 curiosidades descubiertas</div>
+
+      <article class="card" id="card" aria-live="polite">
+        <div class="tag" id="tag">CURIOSIDAD</div>
+        <p class="fact" id="fact"></p>
+        <div class="small" id="detail"></div>
+        <button class="again" id="again">🔎 Otra curiosidad</button>
+      </article>
+    </section>
+
+    <div class="footer">LUPA · una curiosidad al azar</div>
+  </main>
+
+<script>
+const facts = [
+["Animales","Los pulpos tienen tres corazones.","Dos bombean sangre hacia las branquias y uno hacia el resto del cuerpo."],
+["Espacio","En Venus, un día dura más que un año.","Venus tarda unos 243 días terrestres en girar sobre su eje, pero unos 225 en orbitar el Sol."],
+["Naturaleza","Los árboles pueden comunicarse mediante redes subterráneas.","Hongos asociados a sus raíces forman redes que pueden transportar nutrientes y señales entre plantas."],
+["Cuerpo humano","Tu piel es el órgano más grande de tu cuerpo.","En una persona adulta puede cubrir aproximadamente 1,5 a 2 metros cuadrados."],
+["Historia","Cleopatra vivió más cerca de la llegada a la Luna que de la construcción de las pirámides de Guiza.","Las grandes pirámides se construyeron miles de años antes de su época."],
+["Comida","La miel puede conservarse durante muchísimo tiempo.","Su baja disponibilidad de agua y su acidez dificultan el crecimiento de muchos microorganismos."],
+["Océanos","Los océanos producen gran parte del oxígeno que respiramos.","El fitoplancton marino realiza fotosíntesis y contribuye enormemente al oxígeno atmosférico."],
+["Animales","Las vacas tienen amigos favoritos.","Estudios de comportamiento han observado que pueden formar preferencias sociales y mostrar más estrés cuando se separan."],
+["Geografía","Rusia tiene territorio en dos continentes.","Su enorme extensión se reparte entre Europa y Asia, separadas convencionalmente por los montes Urales."],
+["Tecnología","El primer mensaje de texto decía “Merry Christmas”.","Fue enviado en 1992 como una prueba de SMS."],
+["Espacio","En el espacio no puedes oír un sonido como en la Tierra.","El sonido necesita un medio, como aire o agua, para propagarse."],
+["Animales","Los cuervos pueden recordar rostros humanos.","Pueden aprender a distinguir personas y asociarlas con experiencias positivas o negativas."],
+["Ciencia","El agua caliente puede congelarse más rápido que el agua fría en ciertas condiciones.","Este fenómeno se conoce como efecto Mpemba y depende de las condiciones del experimento."],
+["Costa Rica","Costa Rica abolió su ejército en 1948.","El país convirtió esa decisión histórica en parte importante de su identidad institucional."],
+["Inventos","El microondas fue descubierto por accidente.","Percy Spencer observó que la radiación de un magnetrón había calentado un alimento que llevaba cerca."],
+["Música","El silencio también puede ser parte de una composición musical.","Algunos compositores utilizan pausas prolongadas como un elemento expresivo fundamental."],
+["Animales","Las mariposas saborean con los pies.","Tienen receptores químicos en sus patas que les ayudan a identificar plantas adecuadas."],
+["Planeta","La Tierra no es una esfera perfecta.","Su rotación hace que esté ligeramente achatada en los polos y ensanchada en el ecuador."],
+["Historia","La Universidad de Oxford es más antigua que el Imperio azteca.","La enseñanza en Oxford existía siglos antes de la fundación de Tenochtitlan."],
+["Naturaleza","El bambú puede crecer extremadamente rápido.","Algunas especies, en condiciones ideales, pueden crecer decenas de centímetros en un solo día."],
+["Cuerpo humano","El corazón humano late alrededor de 100.000 veces al día.","El número exacto cambia según la frecuencia cardíaca y la actividad de cada persona."],
+["Comida","Los plátanos son bayas desde el punto de vista botánico.","La clasificación botánica de los frutos no siempre coincide con la forma en que los llamamos en la cocina."],
+["Tecnología","La primera cámara digital fue desarrollada en Kodak en los años 70.","El prototipo utilizaba un sensor electrónico y almacenaba las imágenes de forma muy distinta a las cámaras actuales."],
+["Animales","Los delfines duermen con un hemisferio cerebral a la vez.","Esto les permite mantener funciones esenciales mientras descansan."],
+["Espacio","Una huella en la Luna puede permanecer durante muchísimo tiempo.","La Luna casi no tiene atmósfera ni lluvia que la erosione como ocurre en la Tierra."]
+];
+
+let last = -1, discovered = Number(localStorage.getItem("lupa-count") || 0);
+const lens = document.getElementById("lens"), card = document.getElementById("card");
+const tag = document.getElementById("tag"), fact = document.getElementById("fact"), detail = document.getElementById("detail");
+const cta = document.getElementById("cta"), count = document.getElementById("count"), again = document.getElementById("again");
+
+function updateCount(){
+  count.textContent = discovered === 1 ? "1 curiosidad descubierta" : `${discovered} curiosidades descubiertas`;
+}
+function discover(){
+  let i;
+  do { i = Math.floor(Math.random()*facts.length); } while(i === last && facts.length > 1);
+  last = i;
+  const [category,title,body] = facts[i];
+  tag.textContent = category;
+  fact.textContent = title;
+  detail.textContent = body;
+  card.classList.remove("show");
+  void card.offsetWidth;
+  card.classList.add("show");
+  cta.textContent = "TOCA PARA OTRA";
+  discovered++;
+  localStorage.setItem("lupa-count", discovered);
+  updateCount();
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+lens.addEventListener("click", discover);
+again.addEventListener("click", discover);
+updateCount();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
